@@ -8,9 +8,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CocHupQuizApiService {
 
-    public static final String BASE_URL = "http://localhost/api/";
+    public static final String PHI_BASE_URL = "http://192.168.80.88:5000/api/";
+    public static final String PHONG_BASE_URL = "http://192.168.50.100:5000/api/";
 
     private final ICategoryApiEndpoints iCategoryApiEndpoints;
+    private final IDifficultyApiEndpoints iDifficultyApiEndpoints;
 
     private static CocHupQuizApiService cocHupQuizApiService;
 
@@ -29,16 +31,21 @@ public class CocHupQuizApiService {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(PHI_BASE_URL)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         iCategoryApiEndpoints = retrofit.create(ICategoryApiEndpoints.class);
+        iDifficultyApiEndpoints = retrofit.create(IDifficultyApiEndpoints.class);
     }
 
     public static ICategoryApiEndpoints getICategoryApiEndpoints() {
         return getInstance().iCategoryApiEndpoints;
+    }
+
+    public static IDifficultyApiEndpoints getIDifficultyApiEndpoint() {
+        return getInstance().iDifficultyApiEndpoints;
     }
 
 }

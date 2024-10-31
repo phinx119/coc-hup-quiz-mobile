@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
@@ -19,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.xuanphi.cochup.R;
 import com.xuanphi.cochup.dto.Category;
+import com.xuanphi.cochup.dto.Difficulty;
 import com.xuanphi.cochup.service.CocHupQuizApiService;
 
 import java.util.ArrayList;
@@ -37,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spnDifficulty;
     private Button btnStart;
 
-    private HashMap<String, Integer> categoryMap;
+    private List<Category> categoryList;
+    private List<Difficulty> difficultyList;
 
     private int highScore;
     private int currentScore;
@@ -55,59 +58,50 @@ public class MainActivity extends AppCompatActivity {
 
     private void setAdapter() {
         // Set category adapter
-        String[] categories = {
-                "Any Topic", "General Knowledge", "Entertainment: Books",
-                "Entertainment: Film", "Entertainment: Music",
-                "Entertainment: Musicals & Theatres", "Entertainment: Television",
-                "Entertainment: Video Games", "Entertainment: Board Games",
-                "Science & Nature", "Science: Computers", "Science: Mathematics",
-                "Mythology", "Sports", "Geography", "History", "Politics",
-                "Art", "Celebrities", "Animals", "Vehicles",
-                "Entertainment: Comics", "Science: Gadgets",
-                "Entertainment: Japanese Anime & Manga",
-                "Entertainment: Cartoon & Animations"
-        };
+        CocHupQuizApiService.getICategoryApiEndpoints()
+                .getAllCategory()
+                .enqueue(new Callback<List<Category>>() {
+                    @Override
+                    public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
+                        List<String> categoryNameList = new ArrayList<>();
+                        categoryList = response.body();
+                        for (Category category : categoryList) {
+                            categoryNameList.add(category.getCategoryName());
+                        }
 
-        categoryMap = new HashMap<>();
-        categoryMap.put("Any Topic", 0);
-        categoryMap.put("General Knowledge", 9);
-        categoryMap.put("Entertainment: Books", 10);
-        categoryMap.put("Entertainment: Film", 11);
-        categoryMap.put("Entertainment: Music", 12);
-        categoryMap.put("Entertainment: Musicals & Theatres", 13);
-        categoryMap.put("Entertainment: Television", 14);
-        categoryMap.put("Entertainment: Video Games", 15);
-        categoryMap.put("Entertainment: Board Games", 16);
-        categoryMap.put("Science & Nature", 17);
-        categoryMap.put("Science: Computers", 18);
-        categoryMap.put("Science: Mathematics", 19);
-        categoryMap.put("Mythology", 20);
-        categoryMap.put("Sports", 21);
-        categoryMap.put("Geography", 22);
-        categoryMap.put("History", 23);
-        categoryMap.put("Politics", 24);
-        categoryMap.put("Art", 25);
-        categoryMap.put("Celebrities", 26);
-        categoryMap.put("Animals", 27);
-        categoryMap.put("Vehicles", 28);
-        categoryMap.put("Entertainment: Comics", 29);
-        categoryMap.put("Science: Gadgets", 30);
-        categoryMap.put("Entertainment: Japanese Anime & Manga", 31);
-        categoryMap.put("Entertainment: Cartoon & Animations", 32);
+                        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, categoryNameList);
+                        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spnCategory.setAdapter(categoryAdapter);
+                    }
 
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, categories);
-        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnCategory.setAdapter(categoryAdapter);
+                    @Override
+                    public void onFailure(Call<List<Category>> call, Throwable t) {
+                        Toast.makeText(MainActivity.this, "No category available.\nError: " + t.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         // Set difficulty adapter
-        String[] difficulties = {
-                //"Any Difficulty",
-                "Easy", "Medium", "Hard"
-        };
+        CocHupQuizApiService.getIDifficultyApiEndpoint()
+                .getAllDifficulty()
+                .enqueue(new Callback<List<Difficulty>>() {
+                    @Override
+                    public void onResponse(Call<List<Difficulty>> call, Response<List<Difficulty>> response) {
+                        List<String> difficultyNameList = new ArrayList<>();
+                        difficultyList = response.body();
+                        for (Difficulty difficulty : difficultyList) {
+                            difficultyNameList.add(difficulty.getDifficultyName());
+                        }
 
-        ArrayAdapter<String> difficultyAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, difficulties);
-        difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnDifficulty.setAdapter(difficultyAdapter);
+                        ArrayAdapter<String> difficultyAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, difficultyNameList);
+                        difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spnDifficulty.setAdapter(difficultyAdapter);
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<Difficulty>> call, Throwable t) {
+                        Toast.makeText(MainActivity.this, "No difficulty available.\nError: " + t.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     public void bindingAction() {
@@ -117,7 +111,12 @@ public class MainActivity extends AppCompatActivity {
     private void onBtnStartClick(View view) {
         // Get category
         String selectedCategory = spnCategory.getSelectedItem().toString();
-        int categoryValue = categoryMap.get(selectedCategory);
+        long categoryValue = 0;
+        for (Category category : categoryList) {
+            if (category.getCategoryName().equals(selectedCategory)) {
+                categoryValue = category.getCategoryId();
+            }
+        }
 
         // Get difficulty
         String selectedDifficulty = spnDifficulty.getSelectedItem().toString();
