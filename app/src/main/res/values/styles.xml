@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Button_Style">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:backgroundTint">@color/primary</item>
+        <item name="cornerRadius">7dp</item>
+    </style>
+</resources>
