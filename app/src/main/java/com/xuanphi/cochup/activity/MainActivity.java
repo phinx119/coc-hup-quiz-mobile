@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spnCategory;
     private Spinner spnDifficulty;
     private Button btnStart;
+    private Button btnLogout;
 
     private List<Category> categoryList;
     private List<Difficulty> difficultyList;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         spnCategory = findViewById(R.id.spnCategory);
         spnDifficulty = findViewById(R.id.spnDifficulty);
         btnStart = findViewById(R.id.btnStart);
+        btnLogout = findViewById(R.id.btnLogout);
     }
 
     private void setAdapter() {
@@ -108,6 +110,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void bindingAction() {
         btnStart.setOnClickListener(this::onBtnStartClick);
+        btnLogout.setOnClickListener(this::onLogoutClick);
+    }
+
+    private void onLogoutClick(View view) {
+        // Clear saved user data
+        SharedPreferences preferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+
+        // Navigate back to login activity
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void onBtnStartClick(View view) {

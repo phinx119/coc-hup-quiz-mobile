@@ -1,6 +1,7 @@
 package com.xuanphi.cochup.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -55,11 +56,21 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize views
-        bindingView();
-
-        // Set button click listener
-        handlingAction();
+        // Check if user is already logged in
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        if (sharedPreferences.getBoolean("IS_LOGGED_IN", false)) {
+            // User is logged in, navigate directly to HomeActivity
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra("USER_NAME", sharedPreferences.getString("USER_NAME", ""));
+            startActivity(intent);
+            finish();
+        } else {
+            // Initialize views
+            setContentView(R.layout.activity_login);
+            EdgeToEdge.enable(this);
+            bindingView();
+            handlingAction();
+        }
     }
 
     // Method triggered when login button is clicked
@@ -92,9 +103,16 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Login successful, navigate to HomeActivity
+                    // Store user data in SharedPreferences
+                    SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("USER_NAME", response.body().getFullName());
+                    editor.putBoolean("IS_LOGGED_IN", true); // To track login state
+                    editor.apply();
+
+                    // Navigate to HomeActivity
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.putExtra("USER_NAME", response.body().getFullName()); // Modify as per your model
+                    intent.putExtra("USER_NAME", response.body().getFullName());
                     startActivity(intent);
                     finish();
                 } else {
