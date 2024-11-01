@@ -34,6 +34,13 @@ public class User {
         return this;
     }
 
+    public User(String username, String password, String fullName, long birthYear) {
+        this.username = username;
+        this.password = password;
+        this.fullName = fullName;
+        this.birthYear = birthYear;
+    }
+
     public String getUsername() {
         return username;
     }

@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tvCurrentScore;
     private TextView tvTopicAndMode;
+    private TextView tvUserScore;
     private Spinner spnCategory;
     private Spinner spnDifficulty;
     private Button btnStart;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public void bindingView() {
         tvCurrentScore = findViewById(R.id.tvCurrentScore);
         tvTopicAndMode = findViewById(R.id.tvTopicAndMode);
+        tvUserScore = findViewById(R.id.tvUserScore);
         spnCategory = findViewById(R.id.spnCategory);
         spnDifficulty = findViewById(R.id.spnDifficulty);
         btnStart = findViewById(R.id.btnStart);
@@ -148,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         setAdapter();
         loadCurrentResult();
         bindingAction();
+        displayWelcomeMessage();
     }
 
     // Get recent result and show it on screen
@@ -191,5 +194,10 @@ public class MainActivity extends AppCompatActivity {
         editor.putInt("currentScore", currentScore);
         editor.putString("topicAndMode", currentTopicAndMode);
         editor.apply();
+    }
+    private void displayWelcomeMessage() {
+        Intent intent = getIntent();
+        String userName = intent.getStringExtra("USER_NAME");
+        tvUserScore.setText(userName + "'s Recent Score");
     }
 }

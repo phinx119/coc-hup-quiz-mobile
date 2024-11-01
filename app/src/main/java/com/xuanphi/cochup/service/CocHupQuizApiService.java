@@ -13,11 +13,12 @@ public class CocHupQuizApiService {
 
     private final ICategoryApiEndpoints iCategoryApiEndpoints;
     private final IDifficultyApiEndpoints iDifficultyApiEndpoints;
+    private final IUserApiEndpoints iUserApiEndpoints;
 
     private static CocHupQuizApiService cocHupQuizApiService;
 
     public static CocHupQuizApiService getInstance() {
-        if(cocHupQuizApiService == null) {
+        if (cocHupQuizApiService == null) {
             cocHupQuizApiService = new CocHupQuizApiService();
         }
         return cocHupQuizApiService;
@@ -31,13 +32,14 @@ public class CocHupQuizApiService {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(PHI_BASE_URL)
+                .baseUrl(PHONG_BASE_URL)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         iCategoryApiEndpoints = retrofit.create(ICategoryApiEndpoints.class);
         iDifficultyApiEndpoints = retrofit.create(IDifficultyApiEndpoints.class);
+        iUserApiEndpoints = retrofit.create(IUserApiEndpoints.class);
     }
 
     public static ICategoryApiEndpoints getICategoryApiEndpoints() {
@@ -48,4 +50,7 @@ public class CocHupQuizApiService {
         return getInstance().iDifficultyApiEndpoints;
     }
 
+    public static IUserApiEndpoints getUserService() {
+        return getInstance().iUserApiEndpoints;
+    }
 }
