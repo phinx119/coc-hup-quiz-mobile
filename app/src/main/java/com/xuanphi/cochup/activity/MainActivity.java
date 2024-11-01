@@ -35,9 +35,11 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tvCurrentScore;
     private TextView tvTopicAndMode;
+    private TextView tvUserScore;
     private Spinner spnCategory;
     private Spinner spnDifficulty;
-    private Button btnStart;
+    private Button btnStart;  
+    private Button btnLogout;
     private Button btnRank;
 
     private List<Category> categoryList;
@@ -52,9 +54,11 @@ public class MainActivity extends AppCompatActivity {
     public void bindingView() {
         tvCurrentScore = findViewById(R.id.tvCurrentScore);
         tvTopicAndMode = findViewById(R.id.tvTopicAndMode);
+        tvUserScore = findViewById(R.id.tvUserScore);
         spnCategory = findViewById(R.id.spnCategory);
         spnDifficulty = findViewById(R.id.spnDifficulty);
         btnStart = findViewById(R.id.btnStart);
+        btnLogout = findViewById(R.id.btnLogout);
         btnRank = findViewById(R.id.btnRank);
     }
 
@@ -108,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void bindingAction() {
         btnStart.setOnClickListener(this::onBtnStartClick);
+        btnLogout.setOnClickListener(this::onLogoutClick);
         btnRank.setOnClickListener(this::onBtnRankClick);
     }
 
@@ -136,6 +141,20 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_QUESTION);
     }
 
+    private void onLogoutClick(View view) {
+        // Clear saved user data
+        SharedPreferences preferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+
+        // Navigate back to login activity
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
+
     private void onBtnRankClick(View view) {
         Intent intent = new Intent(MainActivity.this, RankActivity.class);
         startActivity(intent);
@@ -156,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         setAdapter();
         loadCurrentResult();
         bindingAction();
+        displayWelcomeMessage();
     }
 
     // Get recent result and show it on screen
@@ -220,5 +240,10 @@ public class MainActivity extends AppCompatActivity {
         editor.putLong("currentScore", currentScore);
         editor.putString("topicAndMode", currentTopicAndMode);
         editor.apply();
+    }
+    private void displayWelcomeMessage() {
+        Intent intent = getIntent();
+        String userName = intent.getStringExtra("USER_NAME");
+        tvUserScore.setText(userName + "'s Recent Score");
     }
 }

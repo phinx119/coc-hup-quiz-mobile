@@ -12,6 +12,7 @@ public class CocHupQuizApiService {
     public static final String PHONG_BASE_URL = "http://192.168.50.100:5000/api/";
     public static final String FPT_BASE_URL = "http://10.33.45.186:5000/api/";
 
+    private final IUserApiEndpoints iUserApiEndpoints;
     private final ICategoryApiEndpoints iCategoryApiEndpoints;
     private final IDifficultyApiEndpoints iDifficultyApiEndpoints;
     private final IRecordApiEndpoints iRecordApiEndpoints;
@@ -19,7 +20,7 @@ public class CocHupQuizApiService {
     private static CocHupQuizApiService cocHupQuizApiService;
 
     public static CocHupQuizApiService getInstance() {
-        if(cocHupQuizApiService == null) {
+        if (cocHupQuizApiService == null) {
             cocHupQuizApiService = new CocHupQuizApiService();
         }
         return cocHupQuizApiService;
@@ -38,9 +39,14 @@ public class CocHupQuizApiService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+        iUserApiEndpoints = retrofit.create(IUserApiEndpoints.class);
         iCategoryApiEndpoints = retrofit.create(ICategoryApiEndpoints.class);
         iDifficultyApiEndpoints = retrofit.create(IDifficultyApiEndpoints.class);
         iRecordApiEndpoints = retrofit.create(IRecordApiEndpoints.class);
+    }
+
+    public static IUserApiEndpoints getUserService() {
+        return getInstance().iUserApiEndpoints;
     }
 
     public static ICategoryApiEndpoints getICategoryApiEndpoints() {
@@ -54,5 +60,4 @@ public class CocHupQuizApiService {
     public static IRecordApiEndpoints getIRecordApiEndpoints() {
         return getInstance().iRecordApiEndpoints;
     }
-
 }
