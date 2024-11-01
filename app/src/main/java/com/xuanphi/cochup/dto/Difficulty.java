@@ -48,10 +48,10 @@ public class Difficulty {
         sb.append(',');
         sb.append("difficultyName");
         sb.append('=');
-        sb.append(((this.difficultyName == null) ? "<null>" : this.difficultyName));
+        sb.append(((this.difficultyName == null)?"<null>":this.difficultyName));
         sb.append(',');
-        if (sb.charAt((sb.length() - 1)) == ',') {
-            sb.setCharAt((sb.length() - 1), ']');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
         } else {
             sb.append(']');
         }

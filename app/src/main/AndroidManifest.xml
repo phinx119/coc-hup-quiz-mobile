@@ -15,6 +15,9 @@
         android:theme="@style/Theme.CócHụp"
         tools:targetApi="31">
         <activity
+            android:name=".activity.RankActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.QuizActivity"
             android:exported="false" />
         <activity
