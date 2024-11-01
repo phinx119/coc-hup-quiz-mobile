@@ -21,10 +21,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.xuanphi.cochup.R;
 import com.xuanphi.cochup.dto.Category;
 import com.xuanphi.cochup.dto.Difficulty;
+import com.xuanphi.cochup.dto.Record;
 import com.xuanphi.cochup.service.CocHupQuizApiService;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -38,14 +38,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvUserScore;
     private Spinner spnCategory;
     private Spinner spnDifficulty;
-    private Button btnStart;
+    private Button btnStart;  
     private Button btnLogout;
+    private Button btnRank;
 
     private List<Category> categoryList;
     private List<Difficulty> difficultyList;
 
-    private int highScore;
-    private int currentScore;
+    private long highScore;
+    private long currentScore;
     private String currentTopicAndMode;
 
     private static final int REQUEST_CODE_QUESTION = 1;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         spnDifficulty = findViewById(R.id.spnDifficulty);
         btnStart = findViewById(R.id.btnStart);
         btnLogout = findViewById(R.id.btnLogout);
+        btnRank = findViewById(R.id.btnRank);
     }
 
     private void setAdapter() {
@@ -74,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, categoryNameList);
-                        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        categoryAdapter.setDropDownViewResource(R.layout.spinner_item);
                         spnCategory.setAdapter(categoryAdapter);
                     }
 
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         ArrayAdapter<String> difficultyAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, difficultyNameList);
-                        difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        difficultyAdapter.setDropDownViewResource(R.layout.spinner_item);
                         spnDifficulty.setAdapter(difficultyAdapter);
                     }
 
@@ -111,20 +113,7 @@ public class MainActivity extends AppCompatActivity {
     public void bindingAction() {
         btnStart.setOnClickListener(this::onBtnStartClick);
         btnLogout.setOnClickListener(this::onLogoutClick);
-    }
-
-    private void onLogoutClick(View view) {
-        // Clear saved user data
-        SharedPreferences preferences = getSharedPreferences("UserSession", MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.clear();
-        editor.apply();
-
-        // Navigate back to login activity
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
+        btnRank.setOnClickListener(this::onBtnRankClick);
     }
 
     private void onBtnStartClick(View view) {
@@ -152,6 +141,25 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_QUESTION);
     }
 
+    private void onLogoutClick(View view) {
+        // Clear saved user data
+        SharedPreferences preferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+
+        // Navigate back to login activity
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void onBtnRankClick(View view) {
+        Intent intent = new Intent(MainActivity.this, RankActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,8 +181,28 @@ public class MainActivity extends AppCompatActivity {
     // Get recent result and show it on screen
     @SuppressLint("SetTextI18n")
     private void loadCurrentResult() {
+        CocHupQuizApiService.getIRecordApiEndpoints()
+                .getRecordsByUserId(1)
+                .enqueue(new Callback<List<Record>>() {
+                    @Override
+                    public void onResponse(Call<List<Record>> call, Response<List<Record>> response) {
+                        if (response.body() != null) {
+                            List<Record> records = response.body();
+                            Record currentRecords = records.get(0);
+                            updateCurrentResult(currentRecords.getHighScore(), currentRecords.getCategory().getCategoryName(), currentRecords.getDifficulty().getDifficultyName());
+                        } else {
+                            Toast.makeText(MainActivity.this, "No record available.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<Record>> call, Throwable t) {
+                        Toast.makeText(MainActivity.this, "Error: " + t.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
         SharedPreferences preferences = getSharedPreferences("share", MODE_PRIVATE);
-        currentScore = preferences.getInt("currentScore", 0);
+        currentScore = preferences.getLong("currentScore", 0);
         tvCurrentScore.setText("" + currentScore);
         currentTopicAndMode = preferences.getString("topicAndMode", "");
         tvTopicAndMode.setText(currentTopicAndMode);
@@ -189,26 +217,27 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 assert data != null;
                 int score = data.getIntExtra("score",0);
-                String topicAndMode = data.getStringExtra("topicAndMode");
-                updateCurrentResult(score, topicAndMode);
+                String topic = data.getStringExtra("topic");
+                String mode = data.getStringExtra("mode");
+                updateCurrentResult(score, topic, mode);
             }
         }
     }
 
     // Set new current score
     @SuppressLint("SetTextI18n")
-    private void updateCurrentResult(int score, String topicAndMode) {
+    private void updateCurrentResult(long score, String topic, String mode) {
         spnCategory.setSelection(0);
         spnDifficulty.setSelection(0);
 
         currentScore = score;
         tvCurrentScore.setText("" + currentScore);
-        currentTopicAndMode = topicAndMode;
+        currentTopicAndMode = topic + " - " + mode;
         tvTopicAndMode.setText(currentTopicAndMode);
 
         SharedPreferences preferences = getSharedPreferences("share", MODE_PRIVATE);
         @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("currentScore", currentScore);
+        editor.putLong("currentScore", currentScore);
         editor.putString("topicAndMode", currentTopicAndMode);
         editor.apply();
     }

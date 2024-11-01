@@ -18,6 +18,12 @@
             android:name=".activity.RegisterActivity"
             android:exported="false" />
         <activity
+            android:name=".activity.RankActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.QuizActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.MainActivity"
             android:exported="false" />
         <activity

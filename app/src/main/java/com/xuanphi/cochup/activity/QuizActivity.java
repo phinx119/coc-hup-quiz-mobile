@@ -21,6 +21,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.xuanphi.cochup.R;
 import com.xuanphi.cochup.dto.Question;
 import com.xuanphi.cochup.dto.Quiz;
+import com.xuanphi.cochup.dto.Record;
+import com.xuanphi.cochup.service.CocHupQuizApiService;
 import com.xuanphi.cochup.service.OpenTriviaDBApiService;
 
 import java.util.ArrayList;
@@ -50,7 +52,8 @@ public class QuizActivity extends AppCompatActivity {
     private Button btnConfirmNext;
 
     private int score;
-    private String topicAndMode;
+    private String topic;
+    private String mode;
 
     private static final int MAX_RETRIES = 100;
     private int retryCount = 0;
@@ -130,7 +133,8 @@ public class QuizActivity extends AppCompatActivity {
         // Show the receive data
         tvCategory.setText("Topic: " + selectedCategory);
         tvDifficulty.setText("Mode: " + selectedDifficulty);
-        topicAndMode = selectedCategory + " - " + selectedDifficulty;
+        topic = selectedCategory;
+        mode = selectedDifficulty;
 
         // Get list of quiz
         fetchQuiz(100, categoryValue, difficultyValue);
@@ -180,7 +184,7 @@ public class QuizActivity extends AppCompatActivity {
                         (int) (millisUntilFinished / 1000) / 60,
                         (int) (millisUntilFinished / 1000) % 60));
 
-                if (millisUntilFinished < (millisInFuture/2)) {
+                if (millisUntilFinished < (millisInFuture / 2)) {
                     tvCountDown.setTextColor(ContextCompat.getColor(QuizActivity.this, R.color.error));
                 }
             }
@@ -252,11 +256,85 @@ public class QuizActivity extends AppCompatActivity {
     // Finish the quiz and return the result
     private void finishQuestion() {
         globalCountDownTimer.cancel();
+
+        getRecord();
+
         Intent resultIntent = new Intent();
         resultIntent.putExtra("score", score);
-        resultIntent.putExtra("topicAndMode", topicAndMode);
+        resultIntent.putExtra("topic", topic);
+        resultIntent.putExtra("mode", topic);
         setResult(RESULT_OK, resultIntent);
         finish();
+    }
+
+    public void getRecord() {
+        CocHupQuizApiService.getIRecordApiEndpoints()
+                .getRecordByUserId(1, topic, mode)
+                .enqueue(new Callback<Record>() {
+                    @Override
+                    public void onResponse(Call<Record> call, Response<Record> response) {
+                        if (response.body() == null) {
+                            if (score > 0) {
+                                createRecord();
+                            }
+                        } else {
+                            Record record = response.body();
+                            if (score > record.getHighScore()) {
+                                updateRecord();
+                            }
+                        }
+                        Toast.makeText(QuizActivity.this, "Quiz Finished!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Record> call, Throwable t) {
+                        Toast.makeText(QuizActivity.this, "Error: " + t.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void createRecord() {
+        CocHupQuizApiService.getIRecordApiEndpoints()
+                .createRecord(1, topic, mode, score)
+                .enqueue(new Callback<Record>() {
+                    @Override
+                    public void onResponse(Call<Record> call, Response<Record> response) {
+                        Record record = response.body();
+                        Toast.makeText(QuizActivity.this,
+                                "New record:\n" +
+                                "Topic: " + record.getCategory().getCategoryName() + "\n" +
+                                "Mode: " + record.getDifficulty().getDifficultyName() + "\n" +
+                                "Score: " + record.getHighScore(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Record> call, Throwable t) {
+                        Toast.makeText(QuizActivity.this, "Error: " + t.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void updateRecord() {
+        CocHupQuizApiService.getIRecordApiEndpoints()
+                .updateRecord(1, topic, mode, score)
+                .enqueue(new Callback<Record>() {
+                    @Override
+                    public void onResponse(Call<Record> call, Response<Record> response) {
+                        Record record = response.body();
+                        Toast.makeText(QuizActivity.this,
+                                "Update record:\n" +
+                                        "Topic: " + record.getCategory().getCategoryName() + "\n" +
+                                        "Mode: " + record.getDifficulty().getDifficultyName() + "\n" +
+                                        "Score: " + record.getHighScore(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Record> call, Throwable t) {
+                        Toast.makeText(QuizActivity.this, "Error: " + t.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override
