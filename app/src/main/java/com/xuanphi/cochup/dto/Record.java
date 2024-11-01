@@ -1,6 +1,5 @@
 package com.xuanphi.cochup.dto;
 
-import java.util.Date;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -9,9 +8,9 @@ public class Record {
     @SerializedName("recordId")
     @Expose
     private long recordId;
-    @SerializedName("userId")
+    @SerializedName("user")
     @Expose
-    private long userId;
+    private User user;
     @SerializedName("category")
     @Expose
     private Category category;
@@ -23,7 +22,7 @@ public class Record {
     private long highScore;
     @SerializedName("recordDate")
     @Expose
-    private Date recordDate;
+    private String recordDate;
 
     public long getRecordId() {
         return recordId;
@@ -38,16 +37,16 @@ public class Record {
         return this;
     }
 
-    public long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Record withUserId(long userId) {
-        this.userId = userId;
+    public Record withUser(User user) {
+        this.user = user;
         return this;
     }
 
@@ -90,15 +89,15 @@ public class Record {
         return this;
     }
 
-    public Date getRecordDate() {
+    public String getRecordDate() {
         return recordDate;
     }
 
-    public void setRecordDate(Date recordDate) {
+    public void setRecordDate(String recordDate) {
         this.recordDate = recordDate;
     }
 
-    public Record withRecordDate(Date recordDate) {
+    public Record withRecordDate(String recordDate) {
         this.recordDate = recordDate;
         return this;
     }
@@ -111,9 +110,9 @@ public class Record {
         sb.append('=');
         sb.append(this.recordId);
         sb.append(',');
-        sb.append("userId");
+        sb.append("user");
         sb.append('=');
-        sb.append(this.userId);
+        sb.append(((this.user == null)?"<null>":this.user));
         sb.append(',');
         sb.append("category");
         sb.append('=');

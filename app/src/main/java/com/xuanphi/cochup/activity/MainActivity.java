@@ -24,7 +24,6 @@ import com.xuanphi.cochup.dto.Difficulty;
 import com.xuanphi.cochup.service.CocHupQuizApiService;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -38,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spnCategory;
     private Spinner spnDifficulty;
     private Button btnStart;
+    private Button btnRank;
 
     private List<Category> categoryList;
     private List<Difficulty> difficultyList;
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         spnCategory = findViewById(R.id.spnCategory);
         spnDifficulty = findViewById(R.id.spnDifficulty);
         btnStart = findViewById(R.id.btnStart);
+        btnRank = findViewById(R.id.btnRank);
     }
 
     private void setAdapter() {
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, categoryNameList);
-                        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        categoryAdapter.setDropDownViewResource(R.layout.spinner_item);
                         spnCategory.setAdapter(categoryAdapter);
                     }
 
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         ArrayAdapter<String> difficultyAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, difficultyNameList);
-                        difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        difficultyAdapter.setDropDownViewResource(R.layout.spinner_item);
                         spnDifficulty.setAdapter(difficultyAdapter);
                     }
 
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void bindingAction() {
         btnStart.setOnClickListener(this::onBtnStartClick);
+        btnRank.setOnClickListener(this::onBtnRankClick);
     }
 
     private void onBtnStartClick(View view) {
@@ -131,6 +133,11 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("difficultyValue", difficultyValue);
 
         startActivityForResult(intent, REQUEST_CODE_QUESTION);
+    }
+
+    private void onBtnRankClick(View view) {
+        Intent intent = new Intent(MainActivity.this, RankActivity.class);
+        startActivity(intent);
     }
 
     @Override
