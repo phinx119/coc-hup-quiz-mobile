@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Category> categoryList;
     private List<Difficulty> difficultyList;
 
+    private int userId;
     private long highScore;
     private long currentScore;
     private String currentTopicAndMode;
@@ -60,6 +61,11 @@ public class MainActivity extends AppCompatActivity {
         btnStart = findViewById(R.id.btnStart);
         btnLogout = findViewById(R.id.btnLogout);
         btnRank = findViewById(R.id.btnRank);
+    }
+
+    public void setUserId() {
+        SharedPreferences preferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        userId = (int) preferences.getLong("USER_ID", 0);
     }
 
     private void setAdapter() {
@@ -172,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         bindingView();
+        setUserId();
         setAdapter();
         loadCurrentResult();
         bindingAction();
@@ -182,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void loadCurrentResult() {
         CocHupQuizApiService.getIRecordApiEndpoints()
-                .getRecordsByUserId(1)
+                .getRecordsByUserId(userId)
                 .enqueue(new Callback<List<Record>>() {
                     @Override
                     public void onResponse(Call<List<Record>> call, Response<List<Record>> response) {
@@ -191,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
                             Record currentRecords = records.get(0);
                             updateCurrentResult(currentRecords.getHighScore(), currentRecords.getCategory().getCategoryName(), currentRecords.getDifficulty().getDifficultyName());
                         } else {
+                            updateCurrentResult(0, "", "");
                             Toast.makeText(MainActivity.this, "No record available.", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -241,6 +249,8 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("topicAndMode", currentTopicAndMode);
         editor.apply();
     }
+
+    @SuppressLint("SetTextI18n")
     private void displayWelcomeMessage() {
         Intent intent = getIntent();
         String userName = intent.getStringExtra("USER_NAME");

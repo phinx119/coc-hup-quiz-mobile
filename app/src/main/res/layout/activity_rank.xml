@@ -69,7 +69,7 @@
 
     <Button
         android:id="@+id/btnUser"
-        style="@style/Button_Style"
+        style="@style/Button_Primary_Style"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -80,7 +80,7 @@
 
     <Button
         android:id="@+id/btnGlobal"
-        style="@style/Button_Style"
+        style="@style/Button_Primary_Style"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"

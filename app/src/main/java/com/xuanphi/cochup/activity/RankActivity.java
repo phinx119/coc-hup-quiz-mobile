@@ -1,5 +1,6 @@
 package com.xuanphi.cochup.activity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -39,6 +40,7 @@ public class RankActivity extends AppCompatActivity {
     private Button btnUser;
     private Button btnGlobal;
 
+    private int userId;
     private List<Category> categoryList;
     private List<Difficulty> difficultyList;
 
@@ -59,6 +61,11 @@ public class RankActivity extends AppCompatActivity {
         if (globalFragment == null) {
             globalFragment = new GlobalFragment();
         }
+    }
+
+    public void setUserId() {
+        SharedPreferences preferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        userId = (int) preferences.getLong("USER_ID", 0);
     }
 
     private void setAdapter() {
@@ -181,6 +188,7 @@ public class RankActivity extends AppCompatActivity {
         });
 
         bindingView();
+        setUserId();
         setAdapter();
         bindingAction();
     }
@@ -196,7 +204,7 @@ public class RankActivity extends AppCompatActivity {
         // Set rank list
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         if (currentFragment instanceof UserFragment && userFragment != null) {
-            userFragment.setRecord(selectedCategory, selectedDifficulty);
+            userFragment.setRecord(userId, selectedCategory, selectedDifficulty);
             Toast.makeText(RankActivity.this, "User fragment.", Toast.LENGTH_SHORT).show();
         } else if (currentFragment instanceof GlobalFragment && globalFragment != null) {
             globalFragment.setRecords(selectedCategory, selectedDifficulty);
@@ -209,7 +217,7 @@ public class RankActivity extends AppCompatActivity {
     // Get and set records for user fragment
     public void setMyRecords() {
         if (userFragment != null) {
-            userFragment.setRecords();
+            userFragment.setRecords(userId);
         }
     }
 

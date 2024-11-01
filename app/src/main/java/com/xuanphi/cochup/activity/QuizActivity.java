@@ -2,6 +2,7 @@ package com.xuanphi.cochup.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -50,6 +51,9 @@ public class QuizActivity extends AppCompatActivity {
     private RadioButton rbAnswer4;
 
     private Button btnConfirmNext;
+    private Button btnQuit;
+
+    private int userId;
 
     private int score;
     private String topic;
@@ -82,15 +86,17 @@ public class QuizActivity extends AppCompatActivity {
         rbAnswer4 = findViewById(R.id.rbAnswer4);
 
         btnConfirmNext = findViewById(R.id.btnConfirmNext);
+        btnQuit = findViewById(R.id.btnQuit);
 
         quiz = new ArrayList<>();
     }
 
     public void bindingAction() {
-        btnConfirmNext.setOnClickListener(this::btnConfirmNextClick);
+        btnConfirmNext.setOnClickListener(this::onBtnConfirmNextClick);
+        btnQuit.setOnClickListener(this::onBtnQuitClick);
     }
 
-    private void btnConfirmNextClick(View view) {
+    private void onBtnConfirmNextClick(View view) {
         if (isAnswered) {
             showNextQuestion();
         } else {
@@ -101,6 +107,10 @@ public class QuizActivity extends AppCompatActivity {
                 Toast.makeText(QuizActivity.this, "Please select your answer", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void onBtnQuitClick(View view) {
+        finish();
     }
 
     @Override
@@ -123,6 +133,10 @@ public class QuizActivity extends AppCompatActivity {
     // Receive option to get list of quiz
     @SuppressLint("SetTextI18n")
     public void receiveData() {
+        // Get user id from session
+        SharedPreferences preferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        userId = (int) preferences.getLong("USER_ID", 0);
+
         // Receive option value
         Intent intent = getIntent();
         String selectedCategory = intent.getStringExtra("selectedCategory");
@@ -269,7 +283,7 @@ public class QuizActivity extends AppCompatActivity {
 
     public void getRecord() {
         CocHupQuizApiService.getIRecordApiEndpoints()
-                .getRecordByUserId(1, topic, mode)
+                .getRecordByUserId(userId, topic, mode)
                 .enqueue(new Callback<Record>() {
                     @Override
                     public void onResponse(Call<Record> call, Response<Record> response) {
@@ -295,7 +309,7 @@ public class QuizActivity extends AppCompatActivity {
 
     public void createRecord() {
         CocHupQuizApiService.getIRecordApiEndpoints()
-                .createRecord(1, topic, mode, score)
+                .createRecord(userId, topic, mode, score)
                 .enqueue(new Callback<Record>() {
                     @Override
                     public void onResponse(Call<Record> call, Response<Record> response) {
@@ -317,7 +331,7 @@ public class QuizActivity extends AppCompatActivity {
 
     public void updateRecord() {
         CocHupQuizApiService.getIRecordApiEndpoints()
-                .updateRecord(1, topic, mode, score)
+                .updateRecord(userId, topic, mode, score)
                 .enqueue(new Callback<Record>() {
                     @Override
                     public void onResponse(Call<Record> call, Response<Record> response) {

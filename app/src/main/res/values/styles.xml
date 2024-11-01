@@ -5,7 +5,14 @@
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">20sp</item>
-        <item name="android:backgroundTint">@color/primary</item>
         <item name="cornerRadius">7dp</item>
+    </style>
+
+    <style name="Button_Primary_Style" parent="Button_Style">
+        <item name="android:backgroundTint">@color/primary</item>
+    </style>
+
+    <style name="Button_Danger_Style" parent="Button_Style">
+        <item name="android:backgroundTint">@color/error</item>
     </style>
 </resources>

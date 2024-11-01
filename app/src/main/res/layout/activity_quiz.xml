@@ -134,7 +134,7 @@
 
     <Button
         android:id="@+id/btnConfirmNext"
-        style="@style/Button_Style"
+        style="@style/Button_Primary_Style"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rgAnswers"
@@ -142,6 +142,20 @@
         android:clickable="false"
         android:freezesText="true"
         android:text="Confirm Answer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnQuit"
+        style="@style/Button_Danger_Style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rgAnswers"
+        android:layout_marginBottom="16dp"
+        android:clickable="false"
+        android:freezesText="true"
+        android:text="Quit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

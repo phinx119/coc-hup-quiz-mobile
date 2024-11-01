@@ -1,5 +1,6 @@
 package com.xuanphi.cochup.fragment;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -35,9 +36,9 @@ public class UserFragment extends Fragment {
 
     }
 
-    public void setRecords() {
+    public void setRecords(int userId) {
         CocHupQuizApiService.getIRecordApiEndpoints()
-                .getRecordsByUserId(1)
+                .getRecordsByUserId(userId)
                 .enqueue(new Callback<List<Record>>() {
                     @Override
                     public void onResponse(Call<List<Record>> call, Response<List<Record>> response) {
@@ -56,9 +57,9 @@ public class UserFragment extends Fragment {
                 });
     }
 
-    public void setRecord(String selectedCategory, String selectedDifficulty) {
+    public void setRecord(int userId, String selectedCategory, String selectedDifficulty) {
         CocHupQuizApiService.getIRecordApiEndpoints()
-                .getRecordByUserId(1, selectedCategory, selectedDifficulty)
+                .getRecordByUserId(userId, selectedCategory, selectedDifficulty)
                 .enqueue(new Callback<Record>() {
                     @Override
                     public void onResponse(Call<Record> call, Response<Record> response) {
